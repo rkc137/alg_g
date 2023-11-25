@@ -3,47 +3,15 @@
 #include <vector>
 #include <thread>
 
-class obj : public sf::RectangleShape
-{
-public:
-    obj(int v) : sf::RectangleShape(sf::Vector2f(objs_width, -(objs_height * v))), value(v)
-    {
-        setFillColor(sf::Color(v * 5, v * 3, 100));
-    }
-    void set_pos(int x)
-    {
-        setPosition(sf::Vector2f(x * objs_width, window_height));
-    }
-
-    bool operator<(const obj &r) const
-    {
-        if (value != r.value)
-            return value < r.value;
-        return value < r.value;
-    }
-    bool operator>(const obj &r) const
-    {
-        if (value != r.value)
-            return value > r.value;
-        return value > r.value;
-    }
-
-    static void set_shapes(int objs_count, int width, int height)
-    {
-        window_height = height;
-        objs_width = width / objs_count;
-        objs_height = height / objs_count;
-    }
-private:
-    inline static int objs_width, objs_height, window_height;
-    int value;
-};
+#include "obj.hpp"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1400, 600), "graph");
+    // sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "graph", sf::Style::Fullscreen);
+    sf::RenderWindow window(sf::VideoMode(600, 800), "llal");
+    sf::Vector2u past_window_size = window.getSize();
 
-    int objs_count = 200;
+    int objs_count = 120;
     obj::set_shapes(objs_count, window.getSize().x, window.getSize().y);
     std::vector<obj> vec;
     vec.reserve(objs_count);
@@ -54,24 +22,8 @@ int main()
     std::random_shuffle(vec.begin(), vec.end());
     for(int i = 0; i < objs_count; i++)
             vec[i].set_pos(i);
-    
-    std::thread sort_thread([&vec, objs_count](){
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        for (int i = 0; i < objs_count - 1; i++)
-        {
-            for (int j = 0; j < objs_count - i - 1; j++)
-            {
-                if (vec[j] > vec[j + 1])
-                {
-                    vec[j].set_pos(j + 1);
-                    vec[j + 1].set_pos(j);
-                    std::swap(vec[j], vec[j + 1]);
-                    std::this_thread::sleep_for(std::chrono::microseconds(1000));
-                }
-            }
-        }
-    });
 
+    int i = 0, j = 0;
     while(window.isOpen())
     {
         sf::Event event;
@@ -79,16 +31,34 @@ int main()
         {
             switch (event.type)
             {
-            case sf::Event::Closed:
-                // sort_thread.join();
-                window.close();
-                return 0;
-            case sf::Event::Resized:
-                break;
-            default:
-                break;
+                case sf::Event::Closed:
+                    window.close();
+                    return 0;
+                case sf::Event::Resized:
+                    break;
             }
         }    
+
+        if(i < objs_count - 1)
+        {
+            if(j < objs_count - i - 1)
+            {
+                if(vec[j] > vec[j + 1])
+                {
+                    vec[j].set_pos(j + 1);
+                    vec[j + 1].set_pos(j);
+                    std::swap(vec[j], vec[j + 1]);
+                }
+                j++;    
+            }
+            else
+            {
+                j = 0;
+                i++;
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
         for(auto &i: vec)
             window.draw(i);
