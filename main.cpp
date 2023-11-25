@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+
 #include <vector>
 #include <thread>
 
@@ -7,8 +8,7 @@
 
 int main()
 {
-    // sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "graph", sf::Style::Fullscreen);
-    sf::RenderWindow window(sf::VideoMode(600, 800), "llal");
+    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "graph", sf::Style::Fullscreen);
     sf::Vector2u past_window_size = window.getSize();
 
     int objs_count = 120;
@@ -58,7 +58,7 @@ int main()
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(1000));
+        std::this_thread::sleep_for(std::chrono::microseconds(500));
 
         for(auto &i: vec)
             window.draw(i);
